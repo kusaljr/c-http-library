@@ -11,9 +11,7 @@
 void handle_request(int client_sock, char *request, IOCContainer *container)
 {
     // Determine the HTTP method
-
     char *request_copy = strdup(request);
-
     char *method = strtok(request_copy, " ");
 
     // Determine the URL path
@@ -41,7 +39,14 @@ void handle_request(int client_sock, char *request, IOCContainer *container)
     {
         if (strcmp(path, container->routes[i].path) == 0 && container->routes[i].method == POST)
         {
-            container->routes[i].handler(client_sock, request);
+            // Allocate HttpRequest struct on the heap
+            HttpRequest *http_request = (HttpRequest *)malloc(sizeof(HttpRequest));
+            parse_http_request(request, http_request);
+            container->routes[i].handler(client_sock, *http_request); // Pass *http_request instead of http_request
+
+            // Free the allocated HttpRequest struct after handling the route
+            free(http_request);
+
             route_found = 1;
             break;
         }
@@ -137,7 +142,7 @@ void server_start(Server *server, IOCContainer *container)
     close(server_sock);
 }
 
-void add_route(IOCContainer *container, const char *path, HttpMethod method, void (*handler)(int client_sock, const char *request))
+void add_route(IOCContainer *container, const char *path, HttpMethod method, void (*handler)(int client_sock, HttpRequest http_request))
 {
     if (container->num_routes >= 10)
     {

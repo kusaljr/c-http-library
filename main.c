@@ -4,11 +4,11 @@
 #include "server.h"
 #include "http_parser.h"
 
-void handle_get_route(int client_sock, const char *request)
+void handle_get_route(int client_sock, HttpRequest http_request)
 {
     // Parse the HTTP request
-    HttpRequest http_request;
-    parse_http_request(request, &http_request);
+    // HttpRequest http_request;
+    // parse_http_request(request, &http_request);
     printf("Request Headers:\n%s\n", http_request.headers);
 
     printf("Request body:\n%s\n", http_request.body);
