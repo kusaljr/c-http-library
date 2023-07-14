@@ -5,9 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h> // Include the necessary header for 'send'
+#include "http_parser.h"
 
 #define MAX_REQUEST_SIZE 2048
-#define RESPONSE_TEMPLATE "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %d\r\n\r\n%s"
+#define RESPONSE_TEMPLATE "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: %d\r\n\r\n%s"
 
 typedef enum
 {

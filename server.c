@@ -1,3 +1,4 @@
+#include "http_parser.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,13 +11,18 @@
 void handle_request(int client_sock, char *request, IOCContainer *container)
 {
     // Determine the HTTP method
-    char *method = strtok(request, " ");
+
+    char *request_copy = strdup(request);
+
+    char *method = strtok(request_copy, " ");
 
     // Determine the URL path
     char *path = strtok(NULL, " ");
+
     if (path == NULL)
     {
         // Invalid request, no URL path
+        free(request_copy);
         const char *response = "<html><body><h1>Invalid Request</h1></body></html>";
         int response_length = strlen(response);
 
@@ -33,29 +39,7 @@ void handle_request(int client_sock, char *request, IOCContainer *container)
     int route_found = 0;
     for (i = 0; i < container->num_routes; i++)
     {
-        // Convert the HttpMethod enum to a string representation
-        const char *method_str;
-        switch (container->routes[i].method)
-        {
-        case GET:
-            method_str = "GET";
-            break;
-        case POST:
-            method_str = "POST";
-            break;
-        case PUT:
-            method_str = "PUT";
-            break;
-        case PATCH:
-            method_str = "PATCH";
-            break;
-        case DELETE:
-            method_str = "DELETE";
-            break;
-        }
-
-        // Compare the path and method strings
-        if (strcmp(path, container->routes[i].path) == 0 && strcmp(method, method_str) == 0)
+        if (strcmp(path, container->routes[i].path) == 0 && container->routes[i].method == POST)
         {
             container->routes[i].handler(client_sock, request);
             route_found = 1;
@@ -75,6 +59,8 @@ void handle_request(int client_sock, char *request, IOCContainer *container)
         send(client_sock, http_response, strlen(http_response), 0);
         free(http_response);
     }
+
+    free(request_copy);
 }
 
 void server_init(Server *server, int port)

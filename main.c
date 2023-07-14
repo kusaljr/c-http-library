@@ -2,11 +2,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include "server.h"
+#include "http_parser.h"
 
-// Define custom route handlers
 void handle_get_route(int client_sock, const char *request)
 {
-    const char *response = "<html><body><h1>POST Route BABAY</h1><p>Welcome to the GET route!</p></body></html>";
+    // Parse the HTTP request
+    HttpRequest http_request;
+    parse_http_request(request, &http_request);
+    printf("Request Headers:\n%s\n", http_request.headers);
+
+    printf("Request body:\n%s\n", http_request.body);
+
+    // Parse the JSON body
+    // Assuming the body contains a valid JSON string
+    // You can use your preferred JSON parsing library here
+    const char *json_body = http_request.body;
+
+    // Return the JSON body in the response
+    const char *response = json_body;
     int response_length = strlen(response);
 
     char *http_response = (char *)malloc(MAX_REQUEST_SIZE);
@@ -17,7 +30,6 @@ void handle_get_route(int client_sock, const char *request)
     send(client_sock, http_response, strlen(http_response), 0);
     free(http_response);
 }
-
 int main()
 {
     // Create a new server instance
