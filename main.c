@@ -7,9 +7,25 @@
 
 PostgreSQLConnector connector;
 
-void handle_get_route(int client_sock, HttpRequest http_request)
+void handle_leads_route(int client_sock, HttpRequest http_request)
 {
     const char *query = "SELECT * FROM lead";
+    char *response = execute_query(query, &connector);
+
+    int response_length = strlen(response);
+
+    char *http_response = (char *)malloc(MAX_REQUEST_SIZE);
+    snprintf(http_response, MAX_REQUEST_SIZE, RESPONSE_TEMPLATE, response_length, response);
+
+    // Make sure to include the necessary header file
+    // #include <sys/socket.h>
+    send(client_sock, http_response, strlen(http_response), 0);
+    free(http_response);
+}
+
+void handle_users_route(int client_sock, HttpRequest http_request)
+{
+    const char *query = "SELECT * FROM user";
     char *response = execute_query(query, &connector);
 
     int response_length = strlen(response);
@@ -47,7 +63,9 @@ int main()
     IOCContainer *container = create_ioc_container();
 
     // Register custom routes
-    add_route(container, "/users", GET, handle_get_route);
+    add_route(container, "/leads", GET, handle_leads_route);
+    add_route(container, "/users", GET, handle_users_route);
+
     // Start the server
     server_start(&server, container);
 
