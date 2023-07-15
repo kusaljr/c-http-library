@@ -3,23 +3,15 @@
 #include <string.h>
 #include "server.h"
 #include "http_parser.h"
+#include "db/pg_connector.h"
+
+PostgreSQLConnector connector;
 
 void handle_get_route(int client_sock, HttpRequest http_request)
 {
-    // Parse the HTTP request
-    // HttpRequest http_request;
-    // parse_http_request(request, &http_request);
-    printf("Request Headers:\n%s\n", http_request.headers);
+    const char *query = "SELECT * FROM lead";
+    char *response = execute_query(query, &connector);
 
-    printf("Request body:\n%s\n", http_request.body);
-
-    // Parse the JSON body
-    // Assuming the body contains a valid JSON string
-    // You can use your preferred JSON parsing library here
-    const char *json_body = http_request.body;
-
-    // Return the JSON body in the response
-    const char *response = json_body;
     int response_length = strlen(response);
 
     char *http_response = (char *)malloc(MAX_REQUEST_SIZE);
@@ -30,17 +22,32 @@ void handle_get_route(int client_sock, HttpRequest http_request)
     send(client_sock, http_response, strlen(http_response), 0);
     free(http_response);
 }
+
 int main()
 {
     // Create a new server instance
     Server server;
     server_init(&server, 8080);
 
+    const char *host = "localhost";
+    const char *port = "5432";
+    const char *dbname = "crms";
+    const char *user = "postgres";
+    const char *password = "learnifydbpwd";
+
+    // Connect to PostgreSQL
+    if (!pgConnect(&connector, host, port, dbname, user, password))
+    {
+        fprintf(stderr, "Failed to connect to PostgreSQL\n");
+        return 0;
+    }
+    printf("Successfully connected to the PostgreSQL database\n");
+
     // Create an IOC container
     IOCContainer *container = create_ioc_container();
 
     // Register custom routes
-    add_route(container, "/users", POST, handle_get_route);
+    add_route(container, "/users", GET, handle_get_route);
     // Start the server
     server_start(&server, container);
 

@@ -37,18 +37,28 @@ void handle_request(int client_sock, char *request, IOCContainer *container)
     int route_found = 0;
     for (i = 0; i < container->num_routes; i++)
     {
-        if (strcmp(path, container->routes[i].path) == 0 && container->routes[i].method == POST)
+        if (strcmp(path, container->routes[i].path) == 0)
         {
-            // Allocate HttpRequest struct on the heap
-            HttpRequest *http_request = (HttpRequest *)malloc(sizeof(HttpRequest));
-            parse_http_request(request, http_request);
-            container->routes[i].handler(client_sock, *http_request); // Pass *http_request instead of http_request
+            HttpMethod method_type = container->routes[i].method;
 
-            // Free the allocated HttpRequest struct after handling the route
-            free(http_request);
+            // Check if the method matches
+            if ((strcmp(method, "GET") == 0 && method_type == GET) ||
+                (strcmp(method, "POST") == 0 && method_type == POST) ||
+                (strcmp(method, "PUT") == 0 && method_type == PUT) ||
+                (strcmp(method, "PATCH") == 0 && method_type == PATCH) ||
+                (strcmp(method, "DELETE") == 0 && method_type == DELETE))
+            {
+                // Allocate HttpRequest struct on the heap
+                HttpRequest *http_request = (HttpRequest *)malloc(sizeof(HttpRequest));
+                parse_http_request(request, http_request);
+                container->routes[i].handler(client_sock, *http_request); // Pass *http_request instead of http_request
 
-            route_found = 1;
-            break;
+                // Free the allocated HttpRequest struct after handling the route
+                free(http_request);
+
+                route_found = 1;
+                break;
+            }
         }
     }
 
