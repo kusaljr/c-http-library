@@ -30,6 +30,7 @@ typedef struct
 {
     const char *path;
     HttpMethod method;
+    void (*middleware)(int client_sock, HttpRequest http_request, void (*next)(int client_sock, HttpRequest http_request));
     void (*handler)(int client_sock, HttpRequest http_request);
 } Route;
 
@@ -42,7 +43,7 @@ typedef struct
 void server_init(Server *server, int port);
 void server_start(Server *server, IOCContainer *container);
 void handle_request(int client_sock, char *request, IOCContainer *container);
-void add_route(IOCContainer *container, const char *path, HttpMethod method, void (*handler)(int client_sock, HttpRequest http_request));
+void add_route(IOCContainer *container, const char *path, HttpMethod method, void (*middleware)(int client_sock, HttpRequest http_request, void (*next)(int client_sock, HttpRequest http_request)), void (*handler)(int client_sock, HttpRequest http_request));
 IOCContainer *create_ioc_container(); // Add the function declaration for 'create_ioc_container'
 
 #endif

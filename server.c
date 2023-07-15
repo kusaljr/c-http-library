@@ -48,13 +48,22 @@ void handle_request(int client_sock, char *request, IOCContainer *container)
                 (strcmp(method, "PATCH") == 0 && method_type == PATCH) ||
                 (strcmp(method, "DELETE") == 0 && method_type == DELETE))
             {
-                // Allocate HttpRequest struct on the heap
-                HttpRequest *http_request = (HttpRequest *)malloc(sizeof(HttpRequest));
-                parse_http_request(request, http_request);
-                container->routes[i].handler(client_sock, *http_request); // Pass *http_request instead of http_request
-
-                // Free the allocated HttpRequest struct after handling the route
-                free(http_request);
+                // Execute middleware if provided
+                if (container->routes[i].middleware != NULL)
+                {
+                    HttpRequest *http_request = (HttpRequest *)malloc(sizeof(HttpRequest));
+                    parse_http_request(request, http_request);
+                    container->routes[i].middleware(client_sock, *http_request, container->routes[i].handler);
+                    free(http_request);
+                }
+                else
+                {
+                    // No middleware, directly call the handler
+                    HttpRequest *http_request = (HttpRequest *)malloc(sizeof(HttpRequest));
+                    parse_http_request(request, http_request);
+                    container->routes[i].handler(client_sock, *http_request);
+                    free(http_request);
+                }
 
                 route_found = 1;
                 break;
@@ -152,7 +161,7 @@ void server_start(Server *server, IOCContainer *container)
     close(server_sock);
 }
 
-void add_route(IOCContainer *container, const char *path, HttpMethod method, void (*handler)(int client_sock, HttpRequest http_request))
+void add_route(IOCContainer *container, const char *path, HttpMethod method, void (*middleware)(int client_sock, HttpRequest http_request, void (*next)(int client_sock, HttpRequest http_request)), void (*handler)(int client_sock, HttpRequest http_request))
 {
     if (container->num_routes >= 10)
     {
@@ -162,7 +171,18 @@ void add_route(IOCContainer *container, const char *path, HttpMethod method, voi
 
     container->routes[container->num_routes].path = path;
     container->routes[container->num_routes].method = method;
-    container->routes[container->num_routes].handler = handler;
+
+    if (middleware != NULL)
+    {
+        container->routes[container->num_routes].middleware = middleware;
+        container->routes[container->num_routes].handler = handler;
+    }
+    else
+    {
+        container->routes[container->num_routes].middleware = NULL;
+        container->routes[container->num_routes].handler = handler;
+    }
+
     container->num_routes++;
 }
 
