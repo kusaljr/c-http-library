@@ -5,7 +5,14 @@
 
 typedef struct
 {
-    char *headers;
+    char *authorization;
+    char *host;
+    // Add more header fields as needed
+} HttpHeaders;
+
+typedef struct
+{
+    HttpHeaders headers;
     int num_headers;
     char *body;
 } HttpRequest;

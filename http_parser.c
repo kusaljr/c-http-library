@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "http_parser.h"
+
 static void parse_headers(const char **request, HttpRequest *http_request);
 
 static void parse_headers(const char **request, HttpRequest *http_request)
@@ -32,15 +33,32 @@ static void parse_headers(const char **request, HttpRequest *http_request)
         strncpy(header_line, *request, line_length);
         header_line[line_length] = '\0';
 
-        // Append the header line to the existing headers
-        size_t headers_length = strlen(http_request->headers);
-        size_t new_headers_length = headers_length + line_length + 2; // +2 for '\n' and '\0'
-        http_request->headers = (char *)realloc(http_request->headers, new_headers_length);
-        strcat(http_request->headers, header_line);
-        strcat(http_request->headers, "\n");
-
         // Move to the next header line
         *request = end_of_line + 1;
+
+        // Check if the header line contains a known header type
+        const char *authorization_prefix = "Authorization: ";
+        if (strncmp(header_line, authorization_prefix, strlen(authorization_prefix)) == 0)
+        {
+            // Handle Authorization header
+            // Extract the value after the prefix
+            char *authorization_value = header_line + strlen(authorization_prefix);
+
+            // Store the value in the HttpRequest struct
+            http_request->headers.authorization = strdup(authorization_value);
+        }
+
+        const char *host_prefix = "Host: ";
+        if (strncmp(header_line, host_prefix, strlen(host_prefix)) == 0)
+        {
+            // Handle Host header
+            // Extract the value after the prefix
+            char *host_value = header_line + strlen(host_prefix);
+
+            // Store the value in the HttpRequest struct
+            http_request->headers.host = strdup(host_value);
+        }
+
         free(header_line);
     }
 
@@ -54,10 +72,11 @@ static void parse_headers(const char **request, HttpRequest *http_request)
 void parse_http_request(const char *request, HttpRequest *http_request)
 {
     // Initialize the HttpRequest struct
-    http_request->headers = malloc(1); // Allocate memory for an empty string
+    http_request->headers.authorization = NULL;
+    http_request->headers.host = NULL;
+    // Initialize other header fields as needed
     http_request->num_headers = 0;
     http_request->body = NULL;
-
     // Find the start of the request body
     const char *body_start = strstr(request, "\r\n\r\n");
     if (body_start == NULL)

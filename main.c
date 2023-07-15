@@ -4,6 +4,8 @@
 #include "server.h"
 #include "http_parser.h"
 #include "db/pg_connector.h"
+#include <unistd.h>
+#include "auth_handler.h"
 
 PostgreSQLConnector connector;
 
@@ -25,8 +27,10 @@ void handle_leads_route(int client_sock, HttpRequest http_request)
 
 void handle_users_middleware(int client_sock, HttpRequest http_request, void (*next)(int client_sock, HttpRequest http_request))
 {
+
     // Perform middleware operations before calling the next function
-    printf("Middleware: Handling users route, Header: %s\n", http_request.headers);
+    printf("Middleware: Handling users route\n");
+    handle_authorization(client_sock, http_request);
 
     // Call the next function in the middleware chain or the final handler
     next(client_sock, http_request);
