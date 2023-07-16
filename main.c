@@ -9,19 +9,14 @@
 
 PostgreSQLConnector connector;
 
-void handle_leads_route(int client_sock, HttpRequest http_request)
+void handle_hello_route(int client_sock, HttpRequest http_request)
 {
-
-    const char *query = "SELECT * FROM lead";
-    char *response = execute_query(query, &connector);
-
+    const char *response = "{\"message\": \"Hello World\"}";
     int response_length = strlen(response);
 
     char *http_response = (char *)malloc(MAX_REQUEST_SIZE);
-    snprintf(http_response, MAX_REQUEST_SIZE, RESPONSE_TEMPLATE, response_length, response);
+    snprintf(http_response, MAX_REQUEST_SIZE, RESPONSE_TEMPLATE_JSON_OK, response_length, response);
 
-    // Make sure to include the necessary header file
-    // #include <sys/socket.h>
     send(client_sock, http_response, strlen(http_response), 0);
     free(http_response);
 }
@@ -31,10 +26,6 @@ void handle_users_middleware(int client_sock, HttpRequest http_request, void (*n
 
     // Perform middleware operations before calling the next function
     printf("Middleware: Handling users route\n");
-    for (int i = 0; i < http_request.num_params; i++)
-    {
-        printf("%s: %s\n", http_request.params[i].key, http_request.params[i].value);
-    }
 
     handle_authorization(client_sock, http_request);
 
@@ -66,7 +57,7 @@ int main()
     IOCContainer *container = create_ioc_container();
 
     // Register custom routes
-    add_route(container, "/org/lead", GET, handle_users_middleware, handle_leads_route);
+    add_route(container, "/hello", GET, handle_users_middleware, handle_hello_route);
 
     // Start the server
     server_start(&server, container);

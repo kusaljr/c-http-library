@@ -26,7 +26,7 @@ void handle_request(int client_sock, char *request, IOCContainer *container)
         int response_length = strlen(response);
 
         char *http_response = (char *)malloc(MAX_REQUEST_SIZE);
-        snprintf(http_response, MAX_REQUEST_SIZE, RESPONSE_TEMPLATE_JSON, response_length, response);
+        snprintf(http_response, MAX_REQUEST_SIZE, RESPONSE_TEMPLATE_JSON_BAD_REQUEST, response_length, response);
 
         send(client_sock, http_response, strlen(http_response), 0);
         free(http_response);
@@ -79,7 +79,7 @@ void handle_request(int client_sock, char *request, IOCContainer *container)
         int response_length = strlen(response);
 
         char *http_response = (char *)malloc(MAX_REQUEST_SIZE);
-        snprintf(http_response, MAX_REQUEST_SIZE, RESPONSE_TEMPLATE_JSON, response_length, response);
+        snprintf(http_response, MAX_REQUEST_SIZE, RESPONSE_TEMPLATE_JSON_BAD_REQUEST, response_length, response);
 
         send(client_sock, http_response, strlen(http_response), 0);
         free(http_response);

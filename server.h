@@ -10,13 +10,19 @@
 #define MAX_REQUEST_SIZE 4096
 
 #define RESPONSE_TEMPLATE "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %d\r\n\r\n%s"
-#define RESPONSE_TEMPLATE_JSON           \
-    "HTTP/1.1 400 Bad Request\r\n"       \
+#define RESPONSE_TEMPLATE_JSON_BAD_REQUEST \
+    "HTTP/1.1 400 Bad Request\r\n"         \
+    "Content-Type: application/json\r\n"   \
+    "Content-Length: %d\r\n"               \
+    "\r\n"                                 \
+    "%s"
+
+#define RESPONSE_TEMPLATE_JSON_OK        \
+    "HTTP/1.1 200 OK\r\n"                \
     "Content-Type: application/json\r\n" \
     "Content-Length: %d\r\n"             \
     "\r\n"                               \
     "%s"
-
 typedef enum
 {
     GET,
