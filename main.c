@@ -61,8 +61,7 @@ int main()
     IOCContainer *container = create_ioc_container();
 
     // Register custom routes
-    add_route(container, "/hello/:id", GET, handle_users_middleware, handle_hello_route);
-    add_route(container, "/okie", GET, handle_users_middleware, handle_hello_route);
+    add_route(container, "/hello", GET, handle_users_middleware, handle_hello_route);
 
     // Start the server
     server_start(&server, container);
