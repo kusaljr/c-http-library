@@ -32,8 +32,6 @@ GET http://localhost:8080/hello
 
 ## Documentation
 
-````
-
 ### Types
 
 Http Method types
@@ -47,7 +45,7 @@ typedef enum
     PATCH,
     DELETE
 } HttpMethod;
-````
+```
 
 Add Route
 

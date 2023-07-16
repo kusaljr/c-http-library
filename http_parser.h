@@ -15,14 +15,14 @@ typedef struct
 {
     HttpHeaders headers;
     int num_headers;
-    int num_params;
+    int num_query;
     char *body;
 
     struct
     {
         char key[256];
         char value[256];
-    } params[MAX_NUM_PARAMETERS];
+    } query[MAX_NUM_PARAMETERS];
 } HttpRequest;
 
 void parse_http_request(const char *request, HttpRequest *http_request);

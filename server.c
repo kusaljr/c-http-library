@@ -8,6 +8,26 @@
 #include <unistd.h>
 #include "server.h"
 
+const char *checkRequestParameter(const char *httpRequest, const char *httpRoute)
+{
+    // Find the position of the parameter in the http route
+    const char *paramStart = strchr(httpRoute, ':');
+
+    if (paramStart != NULL)
+    {
+        // Calculate the length of the route without the parameter
+        size_t routeLength = paramStart - httpRoute;
+
+        // Compare the route without the parameter to the request
+        if (strncmp(httpRequest, httpRoute, routeLength) == 0)
+        {
+            return httpRoute;
+        }
+    }
+
+    return httpRequest;
+}
+
 void handle_request(int client_sock, char *request, IOCContainer *container)
 {
     // Determine the HTTP method
@@ -17,7 +37,6 @@ void handle_request(int client_sock, char *request, IOCContainer *container)
     // Determine the URL path with query parameters
     char *path_with_query = strtok(NULL, " ");
     char *path = strtok(path_with_query, "?");
-
     if (path == NULL)
     {
         // Invalid request, no URL path
@@ -38,7 +57,10 @@ void handle_request(int client_sock, char *request, IOCContainer *container)
     int route_found = 0;
     for (i = 0; i < container->num_routes; i++)
     {
-        if (strcmp(path, container->routes[i].path) == 0)
+
+        const char *returned_path = checkRequestParameter(path, container->routes[i].path);
+
+        if (strcmp(returned_path, container->routes[i].path) == 0)
         {
             HttpMethod method_type = container->routes[i].method;
 

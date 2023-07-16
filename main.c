@@ -26,6 +26,10 @@ void handle_users_middleware(int client_sock, HttpRequest http_request, void (*n
 
     // Perform middleware operations before calling the next function
     printf("Middleware: Handling users route\n");
+    // for (int i = 0; i < http_request.num_query; i++)
+    // {
+    //     printf("%s: %s\n", http_request.query[i].key, http_request.query[i].value);
+    // }
 
     handle_authorization(client_sock, http_request);
 
@@ -57,7 +61,8 @@ int main()
     IOCContainer *container = create_ioc_container();
 
     // Register custom routes
-    add_route(container, "/hello", GET, handle_users_middleware, handle_hello_route);
+    add_route(container, "/hello/:id", GET, handle_users_middleware, handle_hello_route);
+    add_route(container, "/okie", GET, handle_users_middleware, handle_hello_route);
 
     // Start the server
     server_start(&server, container);

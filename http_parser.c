@@ -70,6 +70,7 @@ static void parse_headers(const char **request, HttpRequest *http_request)
 void parse_http_request(const char *request, HttpRequest *http_request)
 {
     // Initialize the HttpRequest struct
+
     http_request->headers.authorization = NULL;
     http_request->headers.host = NULL;
     // Initialize other header fields as needed
@@ -148,8 +149,8 @@ void parse_http_request(const char *request, HttpRequest *http_request)
                     param++;       // Move to the start of the parameter value
 
                     // Copy parameter name and value to the request structure
-                    strncpy(http_request->params[param_count].key, token, sizeof(http_request->params[param_count].key) - 1);
-                    strncpy(http_request->params[param_count].value, param, sizeof(http_request->params[param_count].value) - 1);
+                    strncpy(http_request->query[param_count].key, token, sizeof(http_request->query[param_count].key) - 1);
+                    strncpy(http_request->query[param_count].value, param, sizeof(http_request->query[param_count].value) - 1);
 
                     param_count++;
                 }
@@ -157,7 +158,7 @@ void parse_http_request(const char *request, HttpRequest *http_request)
                 token = strtok(NULL, "&");
             }
 
-            http_request->num_params = param_count;
+            http_request->num_query = param_count;
 
             free(params);
         }
