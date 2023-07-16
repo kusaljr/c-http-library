@@ -22,11 +22,11 @@ void handle_request(int client_sock, char *request, IOCContainer *container)
     {
         // Invalid request, no URL path
         free(request_copy);
-        const char *response = "<html><body><h1>Invalid Request</h1></body></html>";
+        const char *response = "{\"error\": \"Invalid Request\"}";
         int response_length = strlen(response);
 
         char *http_response = (char *)malloc(MAX_REQUEST_SIZE);
-        snprintf(http_response, MAX_REQUEST_SIZE, RESPONSE_TEMPLATE, response_length, response);
+        snprintf(http_response, MAX_REQUEST_SIZE, RESPONSE_TEMPLATE_JSON, response_length, response);
 
         send(client_sock, http_response, strlen(http_response), 0);
         free(http_response);
@@ -75,11 +75,11 @@ void handle_request(int client_sock, char *request, IOCContainer *container)
     if (!route_found)
     {
         // Route not found
-        const char *response = "<html><body><h1>Route Not Found</h1></body></html>";
+        const char *response = "{\"error\": \"Route Not Found\"}";
         int response_length = strlen(response);
 
         char *http_response = (char *)malloc(MAX_REQUEST_SIZE);
-        snprintf(http_response, MAX_REQUEST_SIZE, RESPONSE_TEMPLATE, response_length, response);
+        snprintf(http_response, MAX_REQUEST_SIZE, RESPONSE_TEMPLATE_JSON, response_length, response);
 
         send(client_sock, http_response, strlen(http_response), 0);
         free(http_response);
