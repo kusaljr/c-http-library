@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "server.h"
+#include "logger/logger.h"
 
 const char *checkRequestParameter(const char *httpRequest, const char *httpRoute)
 {
@@ -63,7 +64,7 @@ void handle_request(int client_sock, char *request, IOCContainer *container)
         if (strcmp(returned_path, container->routes[i].path) == 0)
         {
             HttpMethod method_type = container->routes[i].method;
-
+            logMessage(method, path);
             // Check if the method matches
             if ((strcmp(method, "GET") == 0 && method_type == GET) ||
                 (strcmp(method, "POST") == 0 && method_type == POST) ||
@@ -71,7 +72,7 @@ void handle_request(int client_sock, char *request, IOCContainer *container)
                 (strcmp(method, "PATCH") == 0 && method_type == PATCH) ||
                 (strcmp(method, "DELETE") == 0 && method_type == DELETE))
             {
-                // Execute middleware if provided
+
                 if (container->routes[i].middleware != NULL)
                 {
                     HttpRequest *http_request = (HttpRequest *)malloc(sizeof(HttpRequest));
