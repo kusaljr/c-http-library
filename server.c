@@ -14,8 +14,9 @@ void handle_request(int client_sock, char *request, IOCContainer *container)
     char *request_copy = strdup(request);
     char *method = strtok(request_copy, " ");
 
-    // Determine the URL path
-    char *path = strtok(NULL, " ");
+    // Determine the URL path with query parameters
+    char *path_with_query = strtok(NULL, " ");
+    char *path = strtok(path_with_query, "?");
 
     if (path == NULL)
     {

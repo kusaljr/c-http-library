@@ -11,6 +11,7 @@ PostgreSQLConnector connector;
 
 void handle_leads_route(int client_sock, HttpRequest http_request)
 {
+
     const char *query = "SELECT * FROM lead";
     char *response = execute_query(query, &connector);
 
@@ -30,6 +31,11 @@ void handle_users_middleware(int client_sock, HttpRequest http_request, void (*n
 
     // Perform middleware operations before calling the next function
     printf("Middleware: Handling users route\n");
+    for (int i = 0; i < http_request.num_params; i++)
+    {
+        printf("%s: %s\n", http_request.params[i].key, http_request.params[i].value);
+    }
+
     handle_authorization(client_sock, http_request);
 
     // Call the next function in the middleware chain or the final handler
@@ -60,7 +66,7 @@ int main()
     IOCContainer *container = create_ioc_container();
 
     // Register custom routes
-    add_route(container, "/leads", GET, handle_users_middleware, handle_leads_route);
+    add_route(container, "/org/lead", GET, handle_users_middleware, handle_leads_route);
 
     // Start the server
     server_start(&server, container);

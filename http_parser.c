@@ -47,13 +47,11 @@ static void parse_headers(const char **request, HttpRequest *http_request)
             // Store the value in the HttpRequest struct
             http_request->headers.authorization = strdup(authorization_value);
         }
-
-        const char *host_prefix = "Host: ";
-        if (strncmp(header_line, host_prefix, strlen(host_prefix)) == 0)
+        else if (strncmp(header_line, "Host: ", 6) == 0)
         {
             // Handle Host header
             // Extract the value after the prefix
-            char *host_value = header_line + strlen(host_prefix);
+            char *host_value = header_line + 6;
 
             // Store the value in the HttpRequest struct
             http_request->headers.host = strdup(host_value);
@@ -112,4 +110,56 @@ void parse_http_request(const char *request, HttpRequest *http_request)
     strcpy(http_request->body, body_start);
 
     free(headers);
+    const char *query_start = strchr(request, '?');
+    if (query_start != NULL)
+    {
+        query_start++; // Move past the '?' character
+
+        // Find the end position of the query parameters
+        const char *query_end = strchr(query_start, ' ');
+        if (query_end != NULL)
+        {
+            size_t query_length = query_end - query_start;
+            char query_string[256];
+            strncpy(query_string, query_start, query_length);
+            query_string[query_length] = '\0';
+
+            // Replace '+' with space ' ' (URL decoding)
+            for (size_t i = 0; i < query_length; i++)
+            {
+                if (query_string[i] == '+')
+                {
+                    query_string[i] = ' ';
+                }
+            }
+            char *params = strdup(query_string); // Create a duplicate string to avoid modifying the original
+            char *token;
+            char *param;
+
+            int param_count = 0;
+
+            token = strtok(params, "&");
+            while (token != NULL && param_count < MAX_NUM_PARAMETERS)
+            {
+                param = strchr(token, '=');
+                if (param != NULL)
+                {
+                    *param = '\0'; // Null-terminate the parameter name
+                    param++;       // Move to the start of the parameter value
+
+                    // Copy parameter name and value to the request structure
+                    strncpy(http_request->params[param_count].key, token, sizeof(http_request->params[param_count].key) - 1);
+                    strncpy(http_request->params[param_count].value, param, sizeof(http_request->params[param_count].value) - 1);
+
+                    param_count++;
+                }
+
+                token = strtok(NULL, "&");
+            }
+
+            http_request->num_params = param_count;
+
+            free(params);
+        }
+    }
 }
