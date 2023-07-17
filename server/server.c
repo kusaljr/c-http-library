@@ -1,4 +1,4 @@
-#include "http_parser.h"
+#include "../http/http_parser.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,7 +7,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "server.h"
-#include "logger/logger.h"
+#include "../logger/logger.h"
 
 const char *checkRequestParameter(const char *httpRequest, const char *httpRoute)
 {

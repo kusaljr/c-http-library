@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h> // Include the necessary header for 'send'
-#include "http_parser.h"
+#include "../http/http_parser.h"
 
-#define MAX_REQUEST_SIZE 4096
+#define MAX_REQUEST_SIZE 8192
 
 #define RESPONSE_TEMPLATE "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %d\r\n\r\n%s"
 #define RESPONSE_TEMPLATE_JSON_BAD_REQUEST \
