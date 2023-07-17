@@ -1,11 +1,17 @@
 # REST API Framework in C
 
-## Installation
+## Installation (linux only for now)
 
 Install Postgres connector
 
 ```bash
 sudo apt-get install libpq-dev
+```
+
+Copy Environment Variable
+
+```bash
+cp sample.env .env
 ```
 
 Compile Project
