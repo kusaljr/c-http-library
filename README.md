@@ -156,3 +156,26 @@ void handle_database_route(int client_sock, HttpRequest http_request)
 }
 
 ```
+
+## Environment Variables
+
+You can create `.env` file and put your application critical stuffs there
+
+```env
+API_KEY=dummy_api_key
+```
+
+You can access using `<env_parser.h>` header
+
+```c
+char *api_key = get_env_value(".env", "API_KEY");
+if (api_key == NULL)
+{
+    printf("API_KEY not found in .env file\n");
+    return 0;
+}
+
+// do the needful
+
+free(api_key);
+```
