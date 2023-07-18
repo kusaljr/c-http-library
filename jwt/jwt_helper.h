@@ -10,6 +10,6 @@
 #include <openssl/buffer.h>
 
 char *base64_encode(const unsigned char *data, size_t input_length, size_t *output_length);
-char *create_jwt(const char *payload, const char *secret_key);
+char *sign_jwt(const char *payload, const char *secret_key);
 
 #endif /* JWT_HELPER_H */

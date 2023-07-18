@@ -8,6 +8,64 @@
 #include <unistd.h>
 #include "server.h"
 #include "../logger/logger.h"
+const char *get_http_status_text(HttpStatus http_status);
+void send_response(int client_sock, const char *response, HttpStatus http_status, ResponseType response_type)
+{
+    // Get the length of the response
+    size_t response_length = strlen(response);
+
+    // Construct the HTTP response
+    size_t http_response_size = response_length + 1000;
+    char *http_response = (char *)malloc(http_response_size);
+    if (http_response == NULL)
+    {
+        printf("Memory allocation error\n");
+        return;
+    }
+
+    // Construct the HTTP status line
+    snprintf(http_response, http_response_size, "HTTP/1.1 %d %s\r\n", http_status, get_http_status_text(http_status));
+
+    // Add response headers based on the response type
+    switch (response_type)
+    {
+    case RESPONSE_TYPE_TEXT:
+        snprintf(http_response + strlen(http_response), http_response_size - strlen(http_response), "Content-Type: text/plain\r\n");
+        break;
+    case RESPONSE_TYPE_JSON:
+        snprintf(http_response + strlen(http_response), http_response_size - strlen(http_response), "Content-Type: application/json\r\n");
+        break;
+    // Add more cases for other response types if needed
+    default:
+        break;
+    }
+
+    // Add the content length header
+    snprintf(http_response + strlen(http_response), http_response_size - strlen(http_response), "Content-Length: %zu\r\n\r\n", response_length);
+
+    // Append the response content
+    strncat(http_response, response, http_response_size - strlen(http_response) - 1);
+
+    // Send the response to the client
+    send(client_sock, http_response, strlen(http_response), 0);
+    logResponse(http_status);
+    // Clean up resources
+    free(http_response);
+}
+
+const char *get_http_status_text(HttpStatus http_status)
+{
+    switch (http_status)
+    {
+    case HTTP_STATUS_OK:
+        return "OK";
+    case HTTP_STATUS_NOT_FOUND:
+        return "Not Found";
+    // Add more cases for other status codes if needed
+    default:
+        return "";
+    }
+}
 
 const char *checkRequestParameter(const char *httpRequest, const char *httpRoute)
 {

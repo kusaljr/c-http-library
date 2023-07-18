@@ -130,6 +130,8 @@ You can pass `NULL` in place of middleware function too
 
 ## Making Database Call
 
+> For now only `postgresql` is supported.
+
 First of all Configure database credential in main function
 
 ```c
@@ -178,4 +180,10 @@ if (api_key == NULL)
 // do the needful
 
 free(api_key);
+```
+
+## Json Web Tokens
+
+```c
+// TODO
 ```

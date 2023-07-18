@@ -23,6 +23,21 @@
     "Content-Length: %d\r\n"             \
     "\r\n"                               \
     "%s"
+
+typedef enum
+{
+    HTTP_STATUS_OK = 200,
+    HTTP_STATUS_NOT_FOUND = 404,
+    // Add more status codes as needed
+} HttpStatus;
+
+typedef enum
+{
+    RESPONSE_TYPE_TEXT,
+    RESPONSE_TYPE_JSON
+    // Add more response types as needed
+} ResponseType;
+
 typedef enum
 {
     GET,
@@ -56,6 +71,7 @@ void server_init(Server *server, int port);
 void server_start(Server *server, IOCContainer *container);
 void handle_request(int client_sock, char *request, IOCContainer *container);
 void add_route(IOCContainer *container, const char *path, HttpMethod method, void (*middleware)(int client_sock, HttpRequest http_request, void (*next)(int client_sock, HttpRequest http_request)), void (*handler)(int client_sock, HttpRequest http_request));
+void send_response(int client_sock, const char *response, HttpStatus http_status, ResponseType response_type);
 IOCContainer *create_ioc_container(); // Add the function declaration for 'create_ioc_container'
 
 #endif
